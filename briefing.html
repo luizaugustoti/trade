@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Briefing — B3 AI Trader Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0e13;
+      --surface: #12161e;
+      --surface-raised: #181d27;
+      --border: #242a36;
+      --text: #edf0f7;
+      --secondary: #a0a9bb;
+      --muted: #8a94a8;
+      --green: #00e676;
+      --green-soft: rgba(0, 230, 118, .10);
+      --red: #ff5252;
+      --amber: #eab96b;
+      --blue: #6ea8fe;
+      --purple: #b393ff;
+      --radius: 14px;
+      --shadow: 0 20px 60px rgba(0,0,0,.55);
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4 { margin: 0; font-weight: 700; letter-spacing: -.4px; }
+    p { margin: 0; }
+    a { color: inherit; text-decoration: none; }
+    .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+    .positive { color: var(--green); }
+    .negative { color: var(--red); }
+    .muted { color: var(--muted); }
+    .status-dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green); box-shadow: 0 0 12px var(--green);
+    }
+    .section { padding: 70px 0; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 20px; border-radius: 9px; border: 1px solid transparent;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .btn-primary { background: var(--green); color: #052c18; }
+    .btn-primary:hover { background: #35ef96; transform: translateY(-1px); }
+    .btn-ghost { border-color: var(--border); color: var(--secondary); background: var(--surface-raised); }
+    .btn-ghost:hover { border-color: var(--green); color: var(--green); }
+
+    /* Header / Hero */
+    .hero {
+      background: linear-gradient(160deg, #0c1017 0%, #12161e 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 90px 0 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: ""; position: absolute; top: -10%; left: -10%;
+      width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,230,118,.08) 0%, transparent 70%);
+      z-index: 0; border-radius: 50%;
+    }
+    .hero .container { position: relative; z-index: 2; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--green); margin-bottom: 16px;
+    }
+    .hero h1 { font-size: 44px; line-height: 1.15; margin-bottom: 20px; }
+    .hero h1 strong { color: var(--green); }
+    .hero p { color: var(--secondary); font-size: 17px; max-width: 640px; margin-bottom: 30px; line-height: 1.7; }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    /* Badge */
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600;
+      padding: 5px 10px; border-radius: 5px; border: 1px solid transparent;
+    }
+    .badge-demo { background: var(--green-soft); color: #6ed2ad; border-color: rgba(0,230,118,.3); }
+
+    /* Section titles */
+    .section-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
+    .section-head .num {
+      font-family: var(--mono); font-size: 28px; font-weight: 800; color: var(--muted);
+    }
+    .section-head h2 { font-size: 28px; color: var(--text); }
+
+    /* Cards */
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 28px; transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
+    .card:hover { border-color: #3a4456; box-shadow: var(--shadow); }
+    .card h3 { font-size: 17px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+    .card p { color: var(--secondary); font-size: 14px; line-height: 1.7; }
+    .card .icon { width: 18px; height: 18px; color: var(--green); }
+
+    /* Feature list */
+    .feature-list { display: grid; gap: 16px; margin-top: 20px; }
+    .feature-item {
+      display: flex; gap: 14px; align-items: flex-start; padding: 16px;
+      background: var(--surface-raised); border: 1px solid var(--border-subtle, #1d232e);
+      border-radius: 10px; transition: background .2s;
+    }
+    .feature-item:hover { background: var(--surface); }
+    .feature-item .mark {
+      flex-shrink: 0; width: 26px; height: 26px; border-radius: 7px;
+      background: var(--green-soft); color: var(--green); display: grid; place-items: center;
+      font-family: var(--mono); font-size: 13px; font-weight: 700;
+    }
+    .feature-item .text strong { color: var(--text); }
+    .feature-item .text span { color: var(--muted); font-size: 13px; }
+
+    /* Timeline / Roadmap */
+    .timeline { position: relative; padding-left: 30px; border-left: 1px solid var(--border); }
+    .timeline::before {
+      content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+      background: linear-gradient(to bottom, var(--green), transparent 60%);
+    }
+    .phase {
+      position: relative; padding: 24px 0; border-bottom: 1px solid var(--border-subtle);
+    }
+    .phase:last-child { border-bottom: none; }
+    .phase .phase-tag {
+      position: absolute; left: -44px; top: 6px; font-family: var(--mono); font-size: 11px;
+      font-weight: 700; color: var(--green); white-space: nowrap;
+    }
+    .phase h4 { font-size: 16px; margin-bottom: 6px; }
+    .phase p { color: var(--secondary); font-size: 13px; margin-bottom: 10px; }
+    .phase ul { margin: 0; padding-left: 18px; color: var(--secondary); font-size: 13px; }
+    .phase li { margin-bottom: 4px; }
+
+    /* Metrics strip */
+    .metrics-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 30px; }
+    .metric {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 24px; text-align: center;
+    }
+    .metric .value { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--green); margin-bottom: 6px; }
+    .metric .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Compare table */
+    table.compare { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+    table.compare th { text-align: left; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .8px; padding: 14px 8px; border-bottom: 1px solid var(--border); font-weight: 600; }
+    table.compare td { padding: 14px 8px; border-bottom: 1px solid #1d232e; color: var(--text); }
+    table.compare tr:last-child td { border-bottom: none; }
+    table.compare tr:hover { background: var(--surface-raised); }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border); padding: 40px 0; color: var(--muted); font-size: 12px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+    }
+    .footer .disclaimer { max-width: 600px; line-height: 1.7; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .grid-3, .grid-2 { grid-template-columns: 1fr; }
+      .metrics-strip { grid-template-columns: repeat(2, 1fr); }
+      .hero h1 { font-size: 32px; }
+      .hero { padding: 60px 0 40px; }
+      .section { padding: 40px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow">
+        <span class="status-dot"></span>
+        <span>BRIEFING DE APRESENTAÇÃO</span>
+      </div>
+      <h1>B3 AI <strong>Trader Engine</strong></h1>
+      <p>Painel de operações simulado para agentes autônomos de <strong>Day Trade</strong> e <strong>Swing Trade</strong> no mercado B3. Ambiente 100% Paper Trading — capital protegido, sem risco real.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary">Ver demonstrativo</button>
+        <button class="btn btn-ghost">Documentação técnica</button>
+      </div>
+      <div style="margin-top: 30px;">
+        <span class="badge badge-demo">
+          <span class="status-dot"></span> PAPER TRADING · DEMO
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESUMO EXECUTIVO -->
+  <section class="section" id="resumo">
+    <div class="container">
+      <div class="section-head">
+        <span class="num">01</span>
+        <h2>Resumo Executivo</h2>
+      </div>
+      <div class="grid-2">
+        <div>
+          <p><strong>O B3 AI Trader Engine</strong> é uma interface de controle e monitoramento para operações de day trade e swing trade executadas por agentes de negociação autônomos.</p>
+          <p>O sistema consolida em um único painel: patrimônio, PnL do dia, exposição nocional, lista de agentes, gráfico de preços com candles e médias móveis, terminal de eventos em tempo real, posições abertas com stop/alvo e histórico de ordens.</p>
+        </div>
+        <div class="metrics-strip">
+          <div class="metric"><div class="value">5</div><div class="label">Agentes simulados</div></div>
+          <div class="metric"><div class="value">5</div><div class="label">Ativos monitorados</div></div>
+          <div class="metric"><div class="value">3s</div><div class="label">Ciclo de atualização</div></div>
+          <div class="metric"><div class="value">100%</div><div class="label">Simulado / Paper</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OBJETIVO -->
+  <section class="section" id="objetivo">
+    <div class="container">
+      <div class="section-head">
+        <span class="num">02</span>
+        <h2>Objetivo do Sistema</h2>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <h3><svg class="icon" aria-hidden="true"><use href="#i-bot"></use></svg>Gestão de Agentes</h3>
+          <p>Criar, configurar, pausar e retomar agentes de negociação com estratégias e limites de perda individuais por modalidade (Day Trade / Swing Trade / Análise).</p>
+        </div>
+        <div class="card">
+          <h3><svg class="icon" aria-hidden="true"><use href="#i-chart"></use></svg>Monitoramento em Tempo Real</h3>
+          <p>Acompanhe cotações, PnL realizado e não realizado, exposição da banca e posições abertas com stop loss e take profit simulados, atualizados a cada 3 segundos.</p>
+        </div>
+        <div class="card">
+          <h3><svg class="icon" aria-hidden="true"><use href="#i-history"></use></svg>Controle de Risco</h3>
+          <p>Limite global de perda diária, limite por agente e teto de exposição nocional (% da banca). Kill switch para pausa emergencial de todos os agentes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUNCIONALIDADES -->
+  <section class="section" id="funcionalidades" style="background: #0c1017;">
+    <div class="container">
+      <div class="section-head">
+        <span class="num">03</span>
+        <h2>Funcionalidades Principais</h2>
+      </div>
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="mark">DT</div>
+          <div class="text"><strong>Day Trade</strong><span>Agentes focados em operações intraday com fechamento de posições dentro do mesmo pregão.</span></div>
+        </div>
+        <div class="feature-item">
+          <div class="mark">SW</div>
+          <div class="text"><strong>Swing Trade</strong><span>Agentes que mantêm posições por vários dias, buscando capturar movimentos de tendência.</span></div>
+        </div>
+        <div class="feature-item">
+          <div class="mark">AN</div>
+          <div class="text"><strong>Análise / Alertas</strong><span>Agentes de radar que monitoram sinais de suporte, resistência e oportunidades sem executar ordens.</span></div>
+        </div>
+        <div class="feature-item">
+          <div class="mark">📊</div>
+          <div class="text"><strong>Gráfico Interativo</strong><span>Candles, linha, MM 9 e MM 21 com seleção de ativos (PETR4, VALE3, WINFUT, WDOFUT, ITUB4) e múltiplos timeframes.</span></div>
+        </div>
+        <div class="feature-item">
+          <div class="mark">🛡️</div>
+          <div class="text"><strong>Proteções Automáticas</strong><span>Stop loss e take profit avaliados a cada ciclo. Pausa automática de agentes que atingem o limite de perda diária.</span></div>
+        </div>
+        <div class="feature-item">
+          <div class="mark">📋</div>
+          <div class="text"><strong>Histórico e Relatórios</strong><span>Tabela de ordens com busca, filtro por direção e exportação em CSV com aviso de que todos os dados são fictícios.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECNOLOGIAS -->
+  <section class="section" id="tecnologias">
+    <div class="container">
+      <div class="section-head">
+        <span class="num">04</span>
+        <h2>Stack e Arquitetura</h2>
+      </div>
+      <table class="compare">
+        <thead>
+          <tr><th>Camada</th><th>Tecnologia / Recurso</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Front-end</td><td>HTML5, CSS3 (design tokens, responsivo), JavaScript Vanilla</td><td><span class="positive">●</span> Implementado</td></tr>
+          <tr><td>Gráficos</td><td>Chart.js (CDN) com plugin customizado de candles</td><td><span class="positive">●</span> Implementado</td></tr>
+          <tr><td>Simulação</td><td>Estado em memória, market data fictício (random walk), ticks de 3s</td><td><span class="positive">●</span> Implementado</td></tr>
+          <tr><td>Persistência</td><td>localStorage para preferências de API e limites de risco</td><td><span class="positive">●</span> Implementado</td></tr>
+          <tr><td>Backend</td><td>Python (planejado) — REST + WebSocket para dados reais</td><td><span class="muted">○</span> Planejado</td></tr>
+          <tr><td>Corretora</td><td>Integração via API de corretora credenciada na B3</td><td><span class="muted">○</span> Planejado</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section class="section" id="roadmap">
+    <div class="container">
+      <div class="section-head">
+        <span class="num">05</span>
+        <h2>Roadmap de Evolução</h2>
+      </div>
+      <div class="timeline">
+        <div class="phase">
+          <div class="phase-tag">Fase 1</div>
+          <h4>Realismo do Simulador</h4>
+          <p>Inclusão de taxas e emolumentos da B3, slippage simulado, controle de margem/alavancagem e regras distintas por modalidade (zerar day trade no fechamento, permitir swing multi-dia).</p>
+          <ul>
+            <li>Calendário de pregão da B3 (feriados e horários)</li>
+            <li>PnL líquido após taxas</li>
+            <li>Alertas de preço e indicador</li>
+          </ul>
+        </div>
+        <div class="phase">
+          <div class="phase-tag">Fase 2</div>
+          <h4>Conectividade Real</h4>
+          <p>Backend Python com endpoints REST e WebSocket. O front-end passa a consumir dados reais e enviar ordens através do servidor, nunca expondo credenciais no navegador.</p>
+          <ul>
+            <li>Autenticação e autorização de usuários</li>
+            <li>Idempotência de ordens</li>
+            <li>Banco de dados para estado e histórico</li>
+          </ul>
+        </div>
+        <div class="phase">
+          <div class="phase-tag">Fase 3</div>
+          <h4>Análise Avançada</h4>
+          <p>Mais indicadores técnicos (MACD, ATR, Bandas de Bollinger, VWAP), backtest em dados históricos e alocação de capital dedicada por agente.</p>
+          <ul>
+            <li>Sistema de alertas configuráveis</li>
+            <li>Relatórios de desempenho por agente</li>
+            <li>Book de ofertas (L2) e tape reading</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIFERENCIAIS -->
+  <section class="section" id="diferenciais">
+    <div class="container">
+      <div class="section-head">
+        <span class="num">06</span>
+        <h2>Diferenciais do Projeto</h2>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <h3><svg class="icon" aria-hidden="true"><use href="#i-shield"></use></svg>Segurança por Design</h3>
+          <p>Nenhuma chave de API, token ou senha é armazenada no front-end ou no navegador. A comunicação com a corretora deve ocorrer exclusivamente via backend.</p>
+        </div>
+        <div class="card">
+          <h3><svg class="icon" aria-hidden="true"><use href="#i-terminal"></use></svg>Visibilidade Total</h3>
+          <p>Terminal de eventos, PnL por agente, exposição nocional e histórico completo permitem acompanhar cada decisão tomada pelos agentes.</p>
+        </div>
+        <div class="card">
+          <h3><svg class="icon" aria-hidden="true"><use href="#i-pause"></use></svg>Controle de Emergência</h3>
+          <p>Kill switch global pausa todos os agentes instantaneamente sem zerar posições abertas, preservando stops e alvos simulados.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AVISO LEGAL -->
+  <section class="section" id="aviso">
+    <div class="container">
+      <div class="card" style="border-left: 3px solid var(--amber); background: #1a1612;">
+        <h2 style="font-size: 20px; margin-bottom: 12px; color: var(--amber);">⚠️ Aviso Importante</h2>
+        <p style="color: var(--secondary); font-size: 14px;">
+          Este é um ambiente de <strong>simulação (Paper Trading)</strong>. Todos os preços, agentes, ordens e resultados são fictícios. Não constitui recomendação de investimento nem oferta de valores mobiliários. O uso em ambiente de produção requer integração com corretora credenciada, aprovação regulatória aplicável e testes de segurança e conformidade.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div><strong>B3 AI Trader Engine</strong> · Painel de Operações Day Trade &amp; Swing Trade</div>
+    <div class="disclaimer">Ambiente demonstrativo · Dados fictícios · Não é nota de corretagem</div>
+  </footer>
+
+  <!-- SVG sprites (ícones simples inline) -->
+  <svg class="svg-sprite" style="position:absolute;width:0;height:0;overflow:hidden;" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-bot" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="3"/><path d="M12 3v4M1 12v4m22-4v4M9 16h6M8 11v1m8-1v1"/><circle cx="12" cy="3" r="1"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 3v18h17M8 14l4-5 4 3 5-7"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 11a9 9 0 1 1 2.7 7M3 4v7h7m2-4v5l3 2"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="3"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 6 6 6-6 6m10 0h6"/></symbol>
+  </svg>
+
+</body>
+</html>

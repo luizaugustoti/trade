@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Cadastro</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="tel"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input.error,
+        select.error {
+            border-color: #e74c3c;
+        }
+
+        .error-msg {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 25px;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+            margin-top: 2px;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: normal;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .checkbox-group a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .checkbox-group a:hover {
+            text-decoration: underline;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            background: #667eea;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background: #5568d3;
+        }
+
+        button[type="submit"]:active {
+            transform: scale(0.98);
+        }
+
+        button[type="submit"]:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        #mensagem {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+            text-align: center;
+        }
+
+        #mensagem.sucesso {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        #mensagem.erro {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Criar Conta</h2>
+        <form id="formCadastro" novalidate>
+
+            <div class="form-group">
+                <label for="nome">Nome completo</label>
+                <input type="text" id="nome" name="nome" placeholder="Ex: João da Silva" maxlength="100" required>
+                <div class="error-msg" id="erro-nome">Preencha seu nome completo.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" placeholder="exemplo@email.com" required>
+                <div class="error-msg" id="erro-email">Digite um e-mail válido.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="cpf">CPF</label>
+                <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
+                <div class="error-msg" id="erro-cpf">Digite um CPF válido.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="telefone">Telefone</label>
+                <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" maxlength="15" required>
+                <div class="error-msg" id="erro-telefone">Digite um telefone válido.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" placeholder="••••••••" minlength="6" required>
+                <div class="error-msg" id="erro-senha">A senha deve ter pelo menos 6 caracteres.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmaSenha">Confirme a senha</label>
+                <input type="password" id="confirmaSenha" name="confirmaSenha" placeholder="••••••••" required>
+                <div class="error-msg" id="erro-confirmaSenha">As senhas não coincidem.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="dataNascimento">Data de nascimento</label>
+                <input type="date" id="dataNascimento" name="dataNascimento" required>
+                <div class="error-msg" id="erro-data">Informe uma data válida.</div>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="termos" name="termos" required>
+                <label for="termos">
+                    Li e concordo com os <a href="#" target="_blank">Termos de Uso</a> e a
+                    <a href="#" target="_blank">Política de Privacidade</a>.
+                </label>
+                <div class="error-msg" id="erro-termos">Você deve aceitar os termos.</div>
+            </div>
+
+            <button type="submit">Cadastrar</button>
+        </form>
+
+        <div id="mensagem"></div>
+
+        <p style="text-align: center; margin-top: 20px; font-size: 14px; color: #666;">
+            Já tem uma conta? <a href="#" style="color: #667eea; text-decoration: none;">Faça login</a>
+        </p>
+    </div>
+
+    <script>
+        const form = document.getElementById('formCadastro');
+        const mensagem = document.getElementById('mensagem');
+
+        // Máscara para CPF
+        const cpfInput = document.getElementById('cpf');
+        cpfInput.addEventListener('input', function (e) {
+            let valor = e.target.value.replace(/\D/g, '');
+            if (valor.length > 11) valor = valor.slice(0, 11);
+            valor = valor
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            e.target.value = valor;
+        });
+
+        // Máscara para telefone
+        const telefoneInput = document.getElementById('telefone');
+        telefoneInput.addEventListener('input', function (e) {
+            let valor = e.target.value.replace(/\D/g, '');
+            if (valor.length > 11) valor = valor.slice(0, 11);
+            if (valor.length <= 10) {
+                valor = valor
+                    .replace(/(\d{2})(\d)/, '($1) $2')
+                    .replace(/(\d{4})(\d{1,4})$/, '$1-$2');
+            } else {
+                valor = valor
+                    .replace(/(\d{2})(\d)/, '($1) $2')
+                    .replace(/(\d{5})(\d{1,4})$/, '$1-$2');
+            }
+            e.target.value = valor;
+        });
+
+        // Validação de CPF
+        function validarCPF(cpf) {
+            cpf = cpf.replace(/[.\/-]/g, '');
+            if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+
+            let soma = 0;
+            let resto;
+
+            for (let i = 1; i <= 9; i++) {
+                soma += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+            }
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf.substring(9, 10))) return false;
+
+            soma = 0;
+            for (let i = 1; i <= 10; i++) {
+                soma += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+            }
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf.substring(10, 11))) return false;
+
+            return true;
+        }
+
+        // Validação de maioridade (18 anos)
+        function validarIdade(dataNascimento) {
+            const hoje = new Date();
+            const nascimento = new Date(dataNascimento);
+            let idade = hoje.getFullYear() - nascimento.getFullYear();
+            const mes = hoje.getMonth() - nascimento.getMonth();
+            if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+                idade--;
+            }
+            return idade >= 18;
+        }
+
+        function mostrarErro(campoId, mostrar) {
+            const campo = document.getElementById(campoId);
+            const erro = document.getElementById('erro-' + campoId);
+            const input = document.getElementById(campoId);
+
+            if (mostrar) {
+                campo.classList.add('error');
+                erro.classList.add('show');
+            } else {
+                campo.classList.remove('error');
+                erro.classList.remove('show');
+            }
+        }
+
+        function limparErros() {
+            const erros = document.querySelectorAll('.error-msg');
+            const inputs = document.querySelectorAll('.error');
+            erros.forEach(e => e.classList.remove('show'));
+            inputs.forEach(i => i.classList.remove('error'));
+            mensagem.style.display = 'none';
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            limparErros();
+
+            const nome = document.getElementById('nome').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const cpf = document.getElementById('cpf').value;
+            const telefone = document.getElementById('telefone').value;
+            const senha = document.getElementById('senha').value;
+            const confirmaSenha = document.getElementById('confirmaSenha').value;
+            const dataNascimento = document.getElementById('dataNascimento').value;
+            const termos = document.getElementById('termos').checked;
+
+            let valido = true;
+
+            // Nome
+            if (nome.length < 3) {
+                mostrarErro('nome', true);
+                valido = false;
+            }
+
+            // E-mail
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                mostrarErro('email', true);
+                valido = false;
+            }
+
+            // CPF
+            if (!validarCPF(cpf)) {
+                mostrarErro('cpf', true);
+                valido = false;
+            }
+
+            // Telefone (apenas dígitos, mínimo 10)
+            const telDigitos = telefone.replace(/\D/g, '');
+            if (telDigitos.length < 10) {
+                mostrarErro('telefone', true);
+                valido = false;
+            }
+
+            // Senha
+            if (senha.length < 6) {
+                mostrarErro('senha', true);
+                valido = false;
+            }
+
+            // Confirma senha
+            if (senha !== confirmaSenha) {
+                mostrarErro('confirmaSenha', true);
+                valido = false;
+            }
+
+            // Data de nascimento e maioridade
+            if (!dataNascimento || !validarIdade(dataNascimento)) {
+                mostrarErro('dataNascimento', true);
+                valido = false;
+            }
+
+            // Termos
+            if (!termos) {
+                mostrarErro('termos', true);
+                valido = false;
+            }
+
+            if (!valido) return;
+
+            // Simulação de envio
+            const btn = form.querySelector('button[type="submit"]');
+            const textoOriginal = btn.textContent;
+            btn.textContent = 'Cadastrando...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.textContent = textoOriginal;
+                btn.disabled = false;
+                form.reset();
+                mensagem.className = 'sucesso';
+                mensagem.textContent = 'Cadastro realizado com sucesso! Bem-vindo(a), ' + nome + '.';
+                mensagem.style.display = 'block';
+            }, 1500);
+        });
+    </script>
+</body>
+</html>

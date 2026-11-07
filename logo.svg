@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300" shape-rendering="geometricPrecision">
+  <defs>
+    <!-- Gradiente verde glow -->
+    <linearGradient id="gGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ff88"/>
+      <stop offset="100%" stop-color="#00c853"/>
+    </linearGradient>
+
+    <!-- Filtro glow externo -->
+    <filter id="fGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Filtro sombra interna -->
+    <filter id="fInner" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feOffset dx="0" dy="2" result="offsetBlur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Fundo transparente -->
+  <rect width="500" height="300" fill="none"/>
+
+  <!-- === ÍCONE (esquerda) === -->
+  <g id="icon">
+    <!-- Quadrado escuro com cantos arredondados -->
+    <rect x="40" y="40" width="160" height="160" rx="34" fill="#0a0a0f" stroke="#14181c" stroke-width="2"/>
+
+    <!-- Borda verde glow -->
+    <rect x="40" y="40" width="160" height="160" rx="34" fill="none" stroke="url(#gGreen)" stroke-width="4" opacity="0.85" filter="url(#fGlow)"/>
+
+    <!-- Círculo verde sólido -->
+    <circle cx="120" cy="120" r="42" fill="url(#gGreen)" filter="url(#fGlow)"/>
+
+    <!-- Ponteiros brancos (estilo relógio/bússola) -->
+    <g fill="#ffffff" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Ponteiro vertical -->
+      <line x1="120" y1="82" x2="120" y2="128"/>
+      <!-- Ponteiro diagonal -->
+      <line x1="120" y1="128" x2="152" y2="100"/>
+    </g>
+  </g>
+
+  <!-- === TEXTO (direita) === -->
+  <g id="text">
+    <!-- B3AI -->
+    <text x="230" y="128" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-weight="900" font-size="64" letter-spacing="-2" fill="#ffffff">B3AI</text>
+
+    <!-- TRADER -->
+    <text x="230" y="172" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-weight="800" font-size="30" letter-spacing="1" fill="#00ff88">TRADER</text>
+
+    <!-- ENGINE -->
+    <text x="230" y="200" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-weight="500" font-size="18" letter-spacing="3" fill="#8a94a8">ENGINE</text>
+  </g>
+
+  <!-- Linha divisória -->
+  <line x1="230" y1="220" x2="460" y2="220" stroke="#14181c" stroke-width="1"/>
+
+  <!-- Tag Paper Trading - tudo dentro do retângulo -->
+  <g transform="translate(40, 218)">
+    <!-- Retângulo para tudo -->
+    <rect x="0" y="0" width="200" height="40" rx="20" fill="#0a0a0f" stroke="#00ff88" stroke-width="3" opacity="0.95" filter="url(#fGlow)"/>
+    <text x="20" y="26" font-family="Inter, sans-serif" font-weight="800" font-size="16" letter-spacing="0.5" fill="#00ff88">PAPER TRADING</text>
+    <circle cx="120" cy="20" r="3" fill="#00ff88"/>
+    <text x="128" y="26" font-family="Inter, sans-serif" font-weight="700" font-size="16" fill="#ffffff">DEMO</text>
+  </g>
+</svg>

@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B3 AI Trader Engine - Apresentação</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --panel: #121212;
+            --green: #00d084;
+            --green-dark: #00a86a;
+            --white: #ffffff;
+            --gray: #8a8a8a;
+            --gray-light: #4a4a4a;
+            --accent: #667eea;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--white);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============ LOGO ============ */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--green);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 208, 132, 0.4);
+        }
+
+        .logo-bars {
+            display: flex;
+            gap: 4px;
+            height: 28px;
+            align-items: flex-end;
+        }
+
+        .bar {
+            width: 5px;
+            background: var(--bg);
+            border-radius: 2px;
+        }
+
+        .bar-1 { height: 40%; animation: pulse 1.2s ease-in-out infinite; }
+        .bar-2 { height: 70%; animation: pulse 1.2s ease-in-out infinite 0.2s; }
+        .bar-3 { height: 55%; animation: pulse 1.2s ease-in-out infinite 0.4s; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scaleY(1); }
+            50% { opacity: 0.6; transform: scaleY(0.8); }
+        }
+
+        .logo-text {
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .logo-text span.b3 {
+            color: var(--white);
+        }
+
+        .logo-text span.ai {
+            color: var(--green);
+        }
+
+        .logo-subtitle {
+            font-size: 16px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--gray);
+            margin-top: -4px;
+            margin-left: 4px;
+        }
+
+        /* ============ SLIDES ============ */
+        .slides {
+            flex: 1;
+            position: relative;
+            display: flex;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 60px 80px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.5s ease;
+            background: var(--bg);
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        .slide h1,
+        .slide h2,
+        .slide h3 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .slide h1 { font-size: 48px; margin-bottom: 16px; }
+        .slide h2 { font-size: 36px; margin-bottom: 24px; }
+        .slide h3 { font-size: 24px; margin-bottom: 16px; }
+
+        .slide p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #ccc;
+            max-width: 700px;
+        }
+
+        /* Slide título */
+        .slide-titulo {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #0a0a0a 0%, #121212 100%);
+        }
+
+        .slide-titulo .logo {
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .slide-titulo .logo-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+        }
+
+        .slide-titulo .logo-bars { height: 42px; }
+        .slide-titulo .bar { width: 7px; border-radius: 3px; }
+
+        .slide-titulo .logo-text { font-size: 52px; }
+        .slide-titulo .logo-subtitle { font-size: 20px; letter-spacing: 6px; }
+
+        .slide-titulo h1 {
+            font-size: 40px;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .slide-titulo p.subtitle {
+            font-size: 20px;
+            color: var(--green);
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+
+        /* Slide conteúdo com cards */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--panel);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--gray-light);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--green);
+        }
+
+        .card h4 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--green);
+        }
+
+        .card p {
+            font-size: 15px;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        /* Lista */
+        ul.lista {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        ul.lista li {
+            font-size: 17px;
+            margin-bottom: 14px;
+            padding-left: 28px;
+            position: relative;
+            color: #ddd;
+        }
+
+        ul.lista li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            background: var(--green);
+            border-radius: 50%;
+        }
+
+        /* Destaque */
+        .destaque {
+            font-size: 20px;
+            color: var(--green);
+            font-weight: 700;
+            margin: 20px 0;
+            padding-left: 16px;
+            border-left: 4px solid var(--green);
+        }
+
+        /* Rodapé */
+        .footer {
+            position: absolute;
+            bottom: 24px;
+            left: 80px;
+            right: 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--gray);
+            border-top: 1px solid var(--gray-light);
+            padding-top: 12px;
+        }
+
+        .slide-num {
+            font-weight: 600;
+            color: var(--green);
+        }
+
+        /* Navegação */
+        .nav {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gray-light);
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+        }
+
+        .nav-btn.active {
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+        }
+
+        .nav-btn:hover {
+            background: var(--green);
+        }
+
+        /* ============ SLIDE 1: TÍTULO ============ */
+        .slide-titulo {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+            padding: 0 80px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-topo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 60px;
+        }
+
+        .logo-topo .logo-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(0, 208, 132, 0.5);
+        }
+
+        .logo-topo .logo-bars { height: 32px; }
+        .logo-topo .bar { width: 7px; border-radius: 3px; }
+
+        .logo-topo .logo-text { font-size: 42px; }
+        .logo-topo .logo-subtitle { font-size: 16px; letter-spacing: 4px; margin-top: -4px; }
+
+        .slide-titulo h1 {
+            font-size: 40px;
+            color: var(--white);
+            margin-bottom: 16px;
+            font-weight: 800;
+        }
+
+        .subtitle-esq {
+            font-size: 18px;
+            color: var(--green);
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 60px;
+            max-width: 700px;
+            align-self: center;
+        }
+
+        .rodape-inst {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .rodape-inst .versao {
+            color: var(--green);
+            font-weight: 600;
+            margin-top: 4px;
+            display: block;
+        }
+
+        /* ============ SLIDE 5: CONTATO ============ */
+        .slide5-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-top {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 60px;
+        }
+
+        .logo-top .logo-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+        }
+
+        .logo-top .logo-bars { height: 24px; }
+        .logo-top .bar { width: 5px; border-radius: 2px; }
+
+        .logo-top .logo-text { font-size: 28px; }
+        .logo-top .logo-subtitle { font-size: 14px; letter-spacing: 3px; margin-top: -2px; }
+
+        .texto-contato {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .texto-contato h2 {
+            font-size: 40px;
+            margin-bottom: 16px;
+            color: var(--white);
+        }
+
+        .texto-contato p {
+            font-size: 18px;
+            color: #aaa;
+            max-width: 600px;
+        }
+
+        .contato-cards {
+            display: flex;
+            gap: 32px;
+            margin: 40px 0 60px 0;
+        }
+
+        .contato-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--panel);
+            padding: 20px 28px;
+            border-radius: 12px;
+            border: 1px solid var(--gray-light);
+            min-width: 260px;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .contato-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--green);
+        }
+
+        .contato-icone {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .contato-label {
+            font-size: 14px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .contato-valor {
+            font-size: 17px;
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .slide5-footer {
+            font-size: 13px;
+            color: var(--gray);
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        /* ============ SLIDE 5: IDENTIDADE VISUAL ============ */
+        .slide-identidade {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 80px;
+            position: relative;
+            text-align: center;
+        }
+
+        .logo-central {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-central .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            box-shadow: 0 0 20px rgba(0, 208, 132, 0.4);
+        }
+
+        .logo-central .logo-bars { height: 22px; }
+        .logo-central .bar { width: 6px; border-radius: 3px; }
+
+        .logo-central .logo-text { font-size: 24px; margin-bottom: 2px; }
+        .logo-central .logo-subtitle { font-size: 11px; letter-spacing: 2px; }
+
+        .slide-identidade h2 {
+            font-size: 36px;
+            margin: 0 0 12px 0;
+            color: var(--white);
+            font-weight: 800;
+        }
+
+        .sub-identidade {
+            font-size: 15px;
+            color: #aaa;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .paleta-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto 50px auto;
+        }
+
+        .cor-card {
+            background: #121212;
+            padding: 20px 16px;
+            border-radius: 12px;
+            border: 1px solid #2a2a2a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .cor-card:hover {
+            border-color: var(--green);
+        }
+
+        .cor-amostra {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .cor-nome {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 6px;
+        }
+
+        .cor-codigo {
+            font-size: 12px;
+            color: var(--green);
+            font-family: 'Courier New', monospace;
+        }
+
+        .uso-cores {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-top: auto;
+        }
+
+        .chip-uso {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chip-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .chip-texto {
+            font-size: 14px;
+            color: #aaa;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .slide { padding: 40px 24px; }
+            .footer { left: 24px; right: 24px; font-size: 11px; }
+            .slide h1 { font-size: 32px; }
+            .slide h2 { font-size: 26px; }
+            .cards { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Logo fixa no topo -->
+    <div class="logo" style="padding: 24px 80px; border-bottom: 1px solid var(--gray-light); z-index: 50; background: rgba(10,10,10,0.95);">
+        <div class="logo-icon">
+            <div class="logo-bars">
+                <div class="bar bar-1"></div>
+                <div class="bar bar-2"></div>
+                <div class="bar bar-3"></div>
+            </div>
+        </div>
+        <div>
+            <div class="logo-text"><span class="b3">B3</span><span class="ai">AI</span></div>
+            <div class="logo-subtitle">TRADER ENGINE</div>
+        </div>
+    </div>
+
+    <div class="slides">
+
+        <!-- Slide 1: Título -->
+        <div class="slide active" id="slide1">
+            <div class="slide-titulo">
+                <!-- Logo topo centralizada -->
+                <div class="logo-topo">
+                    <div class="logo-icon">
+                        <div class="logo-bars">
+                            <div class="bar bar-1"></div>
+                            <div class="bar bar-2"></div>
+                            <div class="bar bar-3"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="logo-text"><span class="b3">B3</span><span class="ai">AI</span></div>
+                        <div class="logo-subtitle">TRADER ENGINE</div>
+                    </div>
+                </div>
+
+                <!-- Título principal -->
+                <h1>B3 AI Trader Engine</h1>
+
+                <!-- Subtitle verde à esquerda -->
+                <p class="subtitle-esq">Inteligência Artificial para Negociação Automatizada</p>
+
+                <!-- Rodapé institucional -->
+                <div class="rodape-inst">
+                    <span>Apresentação Institucional</span><br>
+                    <span class="versao">v1.0 • 2026</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: O que é -->
+        <div class="slide" id="slide2">
+            <h2>O que é o B3 AI Trader Engine?</h2>
+            <p>
+                O <strong>B3 AI Trader Engine</strong> é uma plataforma de inteligência artificial desenvolvida para análise de mercado e execução automatizada de operações na Bolsa de Valores (B3).
+            </p>
+            <div class="destaque">Análise preditiva + Execução em tempo real</div>
+            <ul class="lista">
+                <li>Processamento de milhares de ativos simultaneamente</li>
+                <li>Sinais de compra e venda gerados por IA</li>
+                <li>Execução automática de ordens com gestão de risco</li>
+                <li>Dashboard com desempenho em tempo real</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Como funciona -->
+        <div class="slide" id="slide3">
+            <h2>Como Funciona</h2>
+            <div class="cards">
+                <div class="card">
+                    <h4>1. Coleta</h4>
+                    <p>Coleta de dados de mercado, book de ofertas e notícias em tempo real.</p>
+                </div>
+                <div class="card">
+                    <h4>2. Análise IA</h4>
+                    <p>Modelos de machine learning identificam padrões e oportunidades.</p>
+                </div>
+                <div class="card">
+                    <h4>3. Sinal</h4>
+                    <p>Geração de sinais de operação com nível de confiança.</p>
+                </div>
+                <div class="card">
+                    <h4>4. Execução</h4>
+                    <p>Envio automático de ordens para a B3 com gestão de risco.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Benefícios -->
+        <div class="slide" id="slide4">
+            <h2>Principais Benefícios</h2>
+            <ul class="lista">
+                <li><strong>Velocidade:</strong> Execução em milissegundos</li>
+                <li><strong>Precisão:</strong> Redução de erros humanos</li>
+                <li><strong>Disponibilidade:</strong> Operação 24h por dia</li>
+                <li><strong>Gestão de Risco:</strong> Stop-loss e take-profit automáticos</li>
+                <li><strong>Transparência:</strong> Relatórios detalhados de performance</li>
+            </ul>
+            <div style="margin-top: 40px; font-size: 20px; color: var(--green); font-weight: 700;">
+                Mais assertividade nas suas decisões de investimento.
+            </div>
+        </div>
+
+        <!-- Slide 5: Identidade Visual / Paleta de Cores -->
+        <div class="slide" id="slide5">
+            <div class="slide-identidade">
+                <!-- Logo topo central -->
+                <div class="logo-central">
+                    <div class="logo-icon" style="width: 40px; height: 40px; border-radius: 10px; margin-bottom: 8px;">
+                        <div class="logo-bars" style="height: 20px;">
+                            <div class="bar bar-1"></div>
+                            <div class="bar bar-2"></div>
+                            <div class="bar bar-3"></div>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="logo-text" style="font-size: 24px;"><span class="b3">B3</span><span class="ai">AI</span></div>
+                        <div class="logo-subtitle" style="font-size: 12px; letter-spacing: 2px;">TRADER ENGINE</div>
+                    </div>
+                </div>
+
+                <h2>Identidade Visual</h2>
+                <p class="sub-identidade">Paleta de cores oficiais da marca B3 AI Trader Engine.</p>
+
+                <div class="paleta-grid">
+                    <div class="cor-card">
+                        <div class="cor-amostra" style="background: #0a0a0a;"></div>
+                        <div class="cor-nome">Fundo / Preto</div>
+                        <div class="cor-codigo">#0a0a0a</div>
+                    </div>
+                    <div class="cor-card">
+                        <div class="cor-amostra" style="background: #00d084;"></div>
+                        <div class="cor-nome">Verde Principal</div>
+                        <div class="cor-codigo">#00d084</div>
+                    </div>
+                    <div class="cor-card">
+                        <div class="cor-amostra" style="background: #00a86a;"></div>
+                        <div class="cor-nome">Verde Escuro</div>
+                        <div class="cor-codigo">#00a86a</div>
+                    </div>
+                    <div class="cor-card">
+                        <div class="cor-amostra" style="background: #ffffff;"></div>
+                        <div class="cor-nome">Texto / Branco</div>
+                        <div class="cor-codigo">#ffffff</div>
+                    </div>
+                    <div class="cor-card">
+                        <div class="cor-amostra" style="background: #8a8a8a;"></div>
+                        <div class="cor-nome">Cinza Claro</div>
+                        <div class="cor-codigo">#8a8a8a</div>
+                    </div>
+                    <div class="cor-card">
+                        <div class="cor-amostra" style="background: #4a4a4a;"></div>
+                        <div class="cor-nome">Bordas / Cinza Médio</div>
+                        <div class="cor-codigo">#4a4a4a</div>
+                    </div>
+                </div>
+
+                <div class="uso-cores">
+                    <div class="chip-uso">
+                        <div class="chip-dot" style="background: #00d084;"></div>
+                        <div class="chip-texto">Uso do Verde Principal</div>
+                    </div>
+                    <div class="chip-uso">
+                        <div class="chip-dot" style="background: #ffffff;"></div>
+                        <div class="chip-texto">Uso do Branco</div>
+                    </div>
+                    <div class="chip-uso">
+                        <div class="chip-dot" style="background: #8a8a8a;"></div>
+                        <div class="chip-texto">Uso dos Cinzas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Contato (era o 5) -->
+        <div class="slide" id="slide6">
+            <div class="slide5-content">
+                <!-- Texto -->
+                <div class="texto-contato">
+                    <h2>Fale Conosco</h2>
+                    <p>Quer saber mais sobre a plataforma? Entre em contato com nossa equipe.</p>
+                </div>
+
+                <!-- Cards de contato -->
+                <div class="contato-cards">
+                    <div class="contato-card">
+                        <div class="contato-icone">✉</div>
+                        <div class="contato-label">Email</div>
+                        <div class="contato-valor">contato@b3ai.com.br</div>
+                    </div>
+                    <div class="contato-card">
+                        <div class="contato-icone">📞</div>
+                        <div class="contato-label">Telefone</div>
+                        <div class="contato-valor">+55 11 4000-0000</div>
+                    </div>
+                    <div class="contato-card">
+                        <div class="contato-icone">🌐</div>
+                        <div class="contato-label">Site</div>
+                        <div class="contato-valor">www.b3ai.com.br</div>
+                    </div>
+                </div>
+
+                <!-- Rodapé -->
+                <div class="slide5-footer">
+                    © 2026 B3 AI Trader Engine. Todos os direitos reservados.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <span>B3 AI Trader Engine</span>
+        <span class="slide-num" id="slideNum">1 / 5</span>
+    </div>
+
+    <div class="nav" id="nav"></div>
+
+    <script>
+        const totalSlides = 6;
+        let currentSlide = 1;
+
+        function showSlide(n) {
+            if (n < 1) n = totalSlides;
+            if (n > totalSlides) n = 1;
+            currentSlide = n;
+
+            document.querySelectorAll('.slide').forEach((s, i) => {
+                s.classList.toggle('active', i + 1 === n);
+            });
+
+            document.getElementById('slideNum').textContent = n + ' / ' + totalSlides;
+
+            document.querySelectorAll('.nav-btn').forEach((b, i) => {
+                b.classList.toggle('active', i + 1 === n);
+            });
+        }
+
+        const nav = document.getElementById('nav');
+        for (let i = 1; i <= totalSlides; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'nav-btn' + (i === 1 ? ' active' : '');
+            btn.onclick = () => showSlide(i);
+            nav.appendChild(btn);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') showSlide(currentSlide + 1);
+            if (e.key === 'ArrowLeft' || e.key === 'PageUp') showSlide(currentSlide - 1);
+        });
+
+        // Suporte a toque para mobile
+        let touchStartX = 0;
+        document.body.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+        document.body.addEventListener('touchend', e => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) showSlide(diff > 0 ? currentSlide + 1 : currentSlide - 1);
+        });
+    </script>
+</body>
+</html>

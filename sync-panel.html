@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B3 AI — Painel Sincronizado</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script defer src="sync-panel.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090b11;
+      --sidebar: #0e1117;
+      --surface: #12161e;
+      --surface-raised: #181d27;
+      --surface-hover: #1b2130;
+      --border: #242a36;
+      --text: #edf0f7;
+      --secondary: #a0a9bb;
+      --muted: #8a94a8;
+      --green: #00e676;
+      --green-soft: rgba(0,230,118,.09);
+      --red: #ff5252;
+      --red-soft: rgba(255,82,82,.09);
+      --amber: #eab96b;
+      --blue: #6ea8fe;
+      --purple: #b393ff;
+      --radius: 12px;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 13px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    button, input, select { font: inherit; }
+    button { border: 0; cursor: pointer; color: inherit; }
+    button:disabled { opacity: .48; cursor: not-allowed; }
+    input, select { min-width: 0; color: var(--text); background: #0f131b; border: 1px solid #303846; border-radius: 7px; padding: 10px 12px; }
+    .muted { color: var(--muted); }
+    .positive { color: var(--green) !important; }
+    .negative { color: var(--red) !important; }
+    .status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .hidden { display: none !important; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; white-space: nowrap; }
+
+    .app-shell { display: grid; grid-template-columns: 260px minmax(0,1fr); min-height: 100vh; }
+    .sidebar { position: fixed; top: 0; bottom: 0; left: 0; width: 260px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 26px 16px 0; overflow-y: auto; z-index: 40; }
+    .brand { display: flex; align-items: center; gap: 10px; padding-left: 8px; margin-bottom: 18px; }
+    .brand .mark { width: 34px; height: 34px; border-radius: 9px; background: var(--green); color: #052c18; display: grid; place-items: center; font-weight: 800; font-size: 15px; }
+    .brand .name { font-size: 16px; font-weight: 700; letter-spacing: -.4px; }
+    .brand .sub { font-size: 8px; letter-spacing: 1.6px; color: var(--secondary); margin-top: 5px; }
+    .workspace-label { font-size: 8px; letter-spacing: 1.5px; color: #788398; margin: 40px 0 12px 16px; font-weight: 600; }
+    .nav-link { display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 10px 14px; border-radius: 7px; color: #929eb3; font-size: 11px; font-weight: 500; }
+    .nav-link.active { background: var(--green-soft); color: var(--green); }
+    .nav-link .icon { width: 17px; height: 17px; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; fill: none; stroke: currentColor; }
+    .nav-link small { margin-left: auto; font-size: 9px; color: #aab4c6; background: #232a37; border-radius: 3px; padding: 0 5px; height: 18px; display: grid; place-items: center; }
+    .sidebar-bottom { margin-top: auto; padding-top: 60px; border-top: 1px solid var(--border); padding-top: 22px; }
+    .status-card { border: 1px solid #26392f; background: linear-gradient(140deg,#14221c,#11171a 75%); border-radius: 10px; padding: 16px 13px; margin-bottom: 20px; }
+    .status-card .eyebrow { font-size: 8px; letter-spacing: 1.2px; color: #83b99b; margin-bottom: 8px; }
+    .status-card h3 { font-size: 12px; font-weight: 500; line-height: 1.6; color: #d3e2d9; margin-bottom: 6px; }
+    .status-card p { font-size: 9px; color: #a0afa6; line-height: 1.6; }
+
+    .workspace { grid-column: 2; min-width: 0; padding: 24px 28px 0; max-width: 2000px; margin: 0 auto; width: 100%; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 70px; padding: 10px 0; border-bottom: 1px solid var(--border-subtle); background: rgba(14,17,23,.9); position: sticky; top: 0; z-index: 25; }
+    .topbar-left { display: flex; align-items: center; gap: 18px; }
+    .sync-status { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 600; letter-spacing: .5px; color: var(--muted); white-space: nowrap; }
+    .sync-status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 rgba(255,82,82,0); animation: pulse 2s infinite; }
+    .sync-status.sync-on .dot { background: var(--green); box-shadow: 0 0 10px var(--green); }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .5; transform: scale(1.15); } }
+    .clock-bar { display: flex; align-items: center; gap: 8px; min-width: 150px; font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--text); border: 1px solid #2a3342; border-radius: 6px; padding: 4px 10px; background: #0d1118; }
+    .clock-bar small { font-size: 9px; font-weight: 500; color: var(--secondary); margin-left: 2px; }
+
+    .page-title-area { display: flex; align-items: center; justify-content: space-between; margin: 26px 0 18px; }
+    .page-title-area h1 { font-size: 26px; font-weight: 600; letter-spacing: -.8px; }
+    .sync-actions { display: flex; align-items: center; gap: 10px; }
+
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; padding: 8px 14px; border-radius: 7px; font-size: 11px; font-weight: 600; border: 1px solid transparent; }
+    .button-secondary { border-color: #303746; background: var(--surface); color: #c3cad7; }
+    .button-secondary:hover { background: var(--surface-hover); border-color: #4a566c; }
+    .button-primary { background: var(--green); color: #052c18; border-color: var(--green); }
+    .button-primary:hover { background: #35ef96; }
+    .button-outline { border-color: #3a4456; color: var(--secondary); background: transparent; }
+    .button-outline:hover { border-color: var(--green); color: var(--green); }
+    .icon-button { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 6px; border: 1px solid transparent; color: var(--muted); background: transparent; }
+    .icon-button:hover { background: var(--surface-hover); color: var(--text); }
+
+    .sync-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start; }
+    .metrics-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
+    .metric { padding: 16px 17px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); }
+    .metric .label { font-size: 9px; letter-spacing: 1px; color: #9da8ba; font-weight: 500; margin-bottom: 8px; text-transform: uppercase; }
+    .metric .value { font-family: var(--mono); font-size: 24px; font-weight: 700; letter-spacing: -1px; }
+
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; min-width: 0; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 17px; border-bottom: 1px solid var(--border-subtle); }
+    .panel-head h2 { font-size: 12px; font-weight: 600; letter-spacing: .4px; color: var(--text); margin: 0; }
+    .panel-body { padding: 16px; }
+
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; }
+    th { padding: 9px 11px; color: #7d89a0; font-size: 8px; font-weight: 500; letter-spacing: .5px; text-transform: uppercase; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+    td { padding: 10px 11px; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
+    .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 8px; font-weight: 500; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+    .badge-day { color: var(--blue); background: rgba(110,168,254,.07); border: 1px solid rgba(110,168,254,.2); }
+    .badge-swing { color: var(--amber); background: rgba(234,185,107,.07); border: 1px solid rgba(234,185,107,.2); }
+    .badge-an { color: var(--purple); background: rgba(179,147,255,.07); border: 1px solid rgba(179,147,255,.2); }
+    .badge-active { color: var(--green); background: rgba(0,230,118,.07); border: 1px solid rgba(0,230,118,.2); }
+    .badge-paused { color: #9aa6ba; background: #252c39; border-color: #343a45; }
+
+    .agent-row { cursor: pointer; transition: background .15s; }
+    .agent-row:hover { background: rgba(255,255,255,.015); }
+    .agent-cell { display: flex; gap: 9px; align-items: center; }
+    .avatar { width: 29px; height: 29px; border-radius: 7px; background: #22283b; border: 1px solid #343851; display: grid; place-items: center; font-weight: 700; font-size: 13px; color: #bbc4d5; }
+    .avatar.day { background: #1c2c41; border-color: #2b3e59; color: var(--blue); }
+    .avatar.swing { background: #362d20; border-color: #493e2b; color: var(--amber); }
+    .avatar.an { background: #252a32; border-color: #343a45; color: var(--purple); }
+
+    .agents-panel { height: 420px; display: flex; flex-direction: column; }
+    .agents-list { overflow-y: auto; padding: 10px 12px 12px; }
+    .sync-info { font-size: 9px; color: var(--muted); padding: 8px 12px; border-top: 1px solid var(--border-subtle); background: #11151d; }
+
+    .chart-panel { height: 620px; }
+    .chart-canvas-wrap { height: 330px; position: relative; margin: 0 10px; }
+    .chart-ohlc { font-family: var(--mono); font-size: 9px; color: #9da7bb; padding: 10px 17px 0; border-top: 1px solid var(--border-subtle); }
+    .chart-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 17px; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+    .segmented { display: flex; gap: 3px; }
+    .segmented button { padding: 4px 11px; font-size: 10px; color: #929eb3; background: transparent; border-radius: 4px; border: 1px solid transparent; }
+    .segmented button.selected { background: #26332e; color: var(--green); border-color: var(--green); }
+
+    .terminal-panel { height: 500px; background: #10141c; display: flex; flex-direction: column; }
+    .term-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; border-bottom: 1px solid var(--border-subtle); background: #0d1118; font-family: var(--mono); font-size: 9px; color: #7db99b; }
+    .terminal { flex: 1; overflow-y: auto; padding: 8px 16px; font-family: var(--mono); font-size: 8.5px; line-height: 1.6; }
+    .log-entry { padding: 7px 0; border-bottom: 1px solid #1c2330; }
+    .log-time { color: #74839b; margin-right: 6px; }
+    .log-source { font-weight: 600; color: #b0bfd5; margin-right: 6px; }
+    .log-msg { color: #8f9db3; }
+
+    .right-rail { display: flex; flex-direction: column; gap: 20px; }
+    .positions-panel { height: 460px; display: flex; flex-direction: column; }
+    .positions-list { overflow-y: auto; padding: 10px 12px 12px; }
+    .position-card { padding: 13px 0; border-bottom: 1px solid var(--border); border-radius: 4px; }
+    .position-card:last-child { border-bottom: none; }
+    .pos-top { display: flex; justify-content: space-between; align-items: center; }
+    .pos-sym { font-family: var(--mono); font-weight: 600; font-size: 12px; }
+    .side-tag { font-size: 7px; font-weight: 600; letter-spacing: .5px; padding: 1px 5px; border-radius: 3px; }
+    .side-buy { color: #61d99d; background: var(--green-soft); }
+    .side-sell { color: #ff9292; background: var(--red-soft); }
+    .pos-prices { display: flex; gap: 10px; margin-top: 8px; font-family: var(--mono); font-size: 9px; color: var(--muted); }
+    .pos-prices strong { color: #b8c5d8; font-size: 10px; }
+    .pnl-cell { font-family: var(--mono); font-weight: 600; font-size: 11px; white-space: nowrap; }
+    .risk-bar { display: flex; align-items: center; gap: 8px; padding: 14px 17px; background: #11151d; border-bottom: 1px solid var(--border-subtle); }
+    .risk-bar strong { font-family: var(--mono); font-size: 11px; color: var(--text); }
+    .risk-bar .bar { flex: 1; height: 4px; background: #27302f; border-radius: 2px; overflow: hidden; }
+    .risk-bar .fill { height: 100%; background: var(--amber); width: 0%; transition: width .4s; }
+
+    @media (max-width: 1200px) { .sync-grid { grid-template-columns: 1fr; } .right-rail { grid-template-columns: 1fr 1fr; gap: 16px; } }
+    @media (max-width: 900px) { .app-shell { grid-template-columns: 1fr; } .sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); } .right-rail { grid-template-columns: 1fr; } .metrics-row { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegação principal">
+      <a class="brand" href="#sync" aria-label="B3 AI Trader Engine — painel sincronizado">
+        <div class="mark">S</div>
+        <div>
+          <div class="name">B3 AI</div>
+          <div class="sub">PAINEL SINCRONIZADO</div>
+        </div>
+      </a>
+      <div class="workspace-label">WORKSPACE 01</div>
+      <nav class="main-nav" aria-label="Navegação">
+        <a class="nav-link active" href="#sync" data-route="sync" title="Painel sincronizado">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <span>Visão sincronizada</span>
+        </a>
+        <a class="nav-link" href="#agentes" data-route="agentes" title="Agentes de IA">
+          <svg class="icon" viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="13" rx="3"/><path d="M12 3v4M1 12v4m22-4v4M9 16h6M8 11v1m8-1v1"/><circle cx="12" cy="3" r="1"/></svg>
+          <span>Agentes de IA</span>
+        </a>
+        <a class="nav-link" href="#posicoes" data-route="posicoes" title="Posições abertas">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <span>Posições</span><small id="nav-position-count">0</small>
+        </a>
+        <a class="nav-link" href="#terminal" data-route="terminal" title="Terminal de eventos">
+          <svg class="icon" viewBox="0 0 24 24"><path d="m4 6 6 6-6 6m10 0h6"/></svg>
+          <span>Terminal</span>
+        </a>
+        <div class="nav-divider" style="height:1px;background:var(--border-subtle);margin:18px 10px 12px;"></div>
+        <a class="nav-link" href="#config" data-route="config" title="Sincronia e risco">
+          <svg class="icon" viewBox="0 0 24 24"><path d="m9 3-.6 2.3-2 .9-2.2-.6-2 3.4 1.7 1.7v2.6L2.2 15l2 3.4 2.2-.6 2 .9L9 21h4l.6-2.3 2-.9 2.2.6 2-3.4-1.7-1.7v-2.6L19.8 9l-2-3.4-2.2.6-2-.9L13 3Z"/><circle cx="11" cy="12" r="3"/></svg>
+          <span>Configurações</span>
+        </a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="status-card">
+          <div class="eyebrow">SINCRONIA · DEMO</div>
+          <h3>Todos os agentes compartilham o mesmo ticker e relógio B3.</h3>
+          <p>Ambiente simulado. Nenhuma ordem é enviada à corretora.</p>
+        </div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="sync-status" id="sync-status"><span class="dot"></span><span id="sync-status-text">Sincronizando…</span></div>
+          <div class="clock-bar"><span id="market-clock">--:--:--</span><small>BRT</small></div>
+        </div>
+        <div class="topbar-right" style="display:flex;align-items:center;gap:10px;">
+          <button class="button button-outline" id="btn-reset-sync"><svg class="icon" viewBox="0 0 24 24"><path d="M1 4v16l7-3-7-3zM21 4v16l-7 3 7-3z"/></svg><span>Reiniciar ciclo</span></button>
+          <button class="button button-primary" id="btn-kill-switch">Pausar todos os agentes</button>
+        </div>
+      </header>
+
+      <div class="page-title-area">
+        <h1>Agentes Sincronizados · Day Trade &amp; Swing Trade</h1>
+        <div class="sync-actions">
+          <span class="badge badge-active" id="sync-badge">Síncrono</span>
+        </div>
+      </div>
+
+      <div class="metrics-row">
+        <div class="metric"><div class="label">Patrimônio</div><div class="value" id="m-balance">R$ 125.000,00</div></div>
+        <div class="metric"><div class="label">PnL do dia</div><div class="value positive" id="m-pnl">+R$ 0,00</div></div>
+        <div class="metric"><div class="label">Agentes ativos</div><div class="value" id="m-agents">0</div></div>
+        <div class="metric"><div class="label">Posições abertas</div><div class="value" id="m-positions">0</div></div>
+      </div>
+
+      <div class="sync-grid">
+        <div class="primary-column" style="display:flex;flex-direction:column;gap:20px;">
+          <section class="panel chart-panel" style="height:560px;">
+            <div class="panel-head"><h2>Gráfico compartilhado · Ticker único</h2></div>
+            <div class="panel-body" style="display:flex;flex-direction:column;gap:10px;min-height:0;">
+              <div class="chart-toolbar">
+                <div class="segmented" id="chart-timeframes">
+                  <button data-tf="1m" class="selected">1m</button>
+                  <button data-tf="5m">5m</button>
+                  <button data-tf="15m">15m</button>
+                  <button data-tf="1D">1D</button>
+                </div>
+                <div style="font-family:var(--mono);font-size:9px;color:var(--muted);" id="chart-symbol-label">PETR4</div>
+              </div>
+              <div class="chart-canvas-wrap" style="min-height:0;flex:1;"><canvas id="sync-chart"></canvas></div>
+              <div class="chart-ohlc" id="sync-ohlc">O --   H --   L --   C --</div>
+            </div>
+          </section>
+
+          <section class="panel agents-panel" style="height:420px;">
+            <div class="panel-head"><h2>Agentes de IA · Sincronizados</h2></div>
+            <div class="agents-list" id="agents-list"></div>
+            <div class="sync-info" id="sync-info">Ciclo de atualização: 3 segundos · Market data compartilhado por todos os agentes</div>
+          </section>
+        </div>
+
+        <div class="right-rail">
+          <section class="panel positions-panel">
+            <div class="panel-head"><h2>Posições abertas</h2></div>
+            <div class="positions-list" id="positions-list"></div>
+            <div class="risk-bar">
+              <strong>Exposição nocional</strong>
+              <div class="bar"><div class="fill" id="exposure-fill"></div></div>
+              <strong id="exposure-value">R$ 0,00</strong>
+            </div>
+          </section>
+
+          <section class="panel terminal-panel">
+            <div class="panel-head"><h2>Terminal dos agentes</h2></div>
+            <div class="term-bar"><span id="term-status">STREAM ONLINE</span></div>
+            <div class="terminal" id="sync-terminal"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <svg style="position:absolute;width:0;height:0;overflow:hidden;" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="3"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+  </svg>
+</body>
+</html>
